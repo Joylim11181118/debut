@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>걸그룹 포지션으로 보는 내 MBTI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #a18cd1 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 420px;
+            background: #ffffff;
+            border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 30px 24px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .screen {
+            display: none;
+        }
+
+        .screen.active {
+            display: block;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 그라디언트 텍스트 및 배경 */
+        .gradient-text {
+            background: linear-gradient(45deg, #ff6b6b, #845ef7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .gradient-btn {
+            background: linear-gradient(45deg, #ff6b6b, #845ef7);
+            color: #ffffff;
+            border: none;
+            transition: opacity 0.2s;
+        }
+
+        .gradient-btn:hover {
+            opacity: 0.9;
+        }
+
+        /* [화면 1] 시작 화면 */
+        .icon-wrapper {
+            margin-bottom: 16px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .main-icon {
+            width: 60px;
+            height: 60px;
+            background-color: #ffe3e3;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+        }
+
+        .sub-icon {
+            font-size: 20px;
+            position: absolute;
+            top: -5px;
+            right: -10px;
+        }
+
+        .start-title {
+            font-size: 24px;
+            font-weight: 700;
+            line-height: 1.4;
+            margin-bottom: 12px;
+            word-break: keep-all;
+        }
+
+        .start-subtitle {
+            font-size: 14px;
+            color: #868e96;
+            margin-bottom: 40px;
+            word-break: keep-all;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 16px;
+            border-radius: 14px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            outline: none;
+            border: none;
+        }
+
+        /* [화면 2] 질문 화면 */
+        .progress-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .progress-text {
+            font-size: 13px;
+            font-weight: 700;
+            color: #ff6b6b;
+        }
+
+        .progress-count {
+            font-size: 13px;
+            color: #868e96;
+            font-weight: 500;
+        }
+
+        .progress-bar-bg {
+            width: 100%;
+            height: 8px;
+            background-color: #ffe3e3;
+            border-radius: 4px;
+            margin-bottom: 36px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            width: 0%;
+            background-color: #ff6b6b;
+            border-radius: 4px;
+            transition: width 0.3s ease-in-out;
+        }
+
+        .question-text {
+            font-size: 20px;
+            font-weight: 700;
+            color: #212529;
+            margin-bottom: 40px;
+            line-height: 1.5;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            word-break: keep-all;
+        }
+
+        .options-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .option-btn {
+            width: 100%;
+            padding: 18px 20px;
+            background-color: #ffffff;
+            border: 2px solid #ffe3e3;
+            border-radius: 14px;
+            font-size: 15px;
+            color: #343a40;
+            text-align: left;
+            font-weight: 500;
+            line-height: 1.4;
+            cursor: pointer;
+            transition: all 0.2s;
+            word-break: keep-all;
+        }
+
+        .option-btn:hover {
+            border-color: #ff6b6b;
+            background-color: #fff5f5;
+        }
+
+        /* [화면 3] 결과 화면 */
+        .badge {
+            display: inline-block;
+            background-color: #ffe3e3;
+            color: #ff6b6b;
+            font-size: 13px;
+            font-weight: 700;
+            padding: 6px 16px;
+            border-radius: 20px;
+            margin-bottom: 16px;
+        }
+
+        .mbti-type {
+            font-size: 44px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+            line-height: 1.1;
+        }
+
+        .position-name {
+            font-size: 26px;
+            font-weight: 700;
+            color: #212529;
+            margin-bottom: 24px;
+        }
+
+        .description-box {
+            background-color: #fff5f5;
+            border-radius: 16px;
+            padding: 18px;
+            font-size: 14.5px;
+            color: #495057;
+            line-height: 1.6;
+            margin-bottom: 24px;
+            text-align: left;
+            word-break: keep-all;
+        }
+
+        .match-container {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 30px;
+        }
+
+        .match-card {
+            flex: 1;
+            background: #ffffff;
+            border: 1px solid #f1f3f5;
+            border-radius: 14px;
+            padding: 12px 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+
+        .match-title {
+            font-size: 12px;
+            font-weight: 500;
+            color: #868e96;
+            margin-bottom: 6px;
+        }
+
+        .match-name {
+            font-size: 14px;
+            font-weight: 700;
+            color: #212529;
+            word-break: keep-all;
+        }
+
+        .restart-btn {
+            background-color: #212529;
+            color: #ffffff;
+        }
+        
+        .restart-btn:hover {
+            background-color: #343a40;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- [화면 1] 시작 화면 -->
+        <div id="start-screen" class="screen active">
+            <div class="icon-wrapper">
+                <div class="main-icon">✦</div>
+                <div class="sub-icon">⭐</div>
+            </div>
+            <h1 class="start-title gradient-text">걸그룹 포지션으로 보는 내 MBTI</h1>
+            <p class="start-subtitle">12개의 질문으로 알아보는 나의 MBTI와 걸그룹 포지션</p>
+            <button class="btn gradient-btn" onclick="startTest()">테스트 시작하기</button>
+        </div>
+
+        <!-- [화면 2] 질문 화면 -->
+        <div id="question-screen" class="screen">
+            <div class="progress-container">
+                <span class="progress-text">진행도</span>
+                <span id="progress-count" class="progress-count">1 / 12</span>
+            </div>
+            <div class="progress-bar-bg">
+                <div id="progress-bar-fill" class="progress-bar-fill"></div>
+            </div>
+            <div id="question-text" class="question-text">질문 텍스트</div>
+            <div class="options-wrapper">
+                <button id="option-a" class="option-btn" onclick="selectOption('A')">선택지 A</button>
+                <button id="option-b" class="option-btn" onclick="selectOption('B')">선택지 B</button>
+            </div>
+        </div>
+
+        <!-- [화면 3] 결과 화면 -->
+        <div id="result-screen" class="screen">
+            <div class="badge">나의 걸그룹 포지션은?</div>
+            <div id="result-mbti" class="mbti-type gradient-text">ENFJ</div>
+            <div id="result-position" class="position-name">막내</div>
+            <div id="result-description" class="description-box">
+                해당 포지션에 대한 설명이 들어가는 곳입니다.
+            </div>
+            
+            <div class="match-container">
+                <div class="match-card">
+                    <div class="match-title">💕 최고의 궁합 선생님</div>
+                    <div id="best-teacher" class="match-name">[선생님 이름]</div>
+                </div>
+                <div class="match-card">
+                    <div class="match-title">💔 최악의 궁합 선생님</div>
+                    <div id="worst-teacher" class="match-name">[선생님 이름]</div>
+                </div>
+            </div>
+
+            <button class="btn restart-btn" onclick="restartTest()">↺ 다시 테스트하기</button>
+        </div>
+    </div>
+
+    <script>
+        // 12개 질문 데이터
+        const questions = [
+            { q: "오늘 내 직캠이 올라왔다. 나는?", a: "바로 클릭해서 댓글까지 다 읽음", b: "올라온 거 알지만 왠지 못 보겠어서 나중으로 미룸", type: "EI" },
+            { q: "안무 배울 때 나는?", a: "일단 몸이 먼저 나감, 틀려도 일단 해봄", b: "머릿속으로 먼저 정리하고 확실해지면 움직임", type: "EI" },
+            { q: "오늘 SNS에 뭐 올릴지 고민 중이다. 나는?", a: "갑자기 생각난 콘셉트로 즉흥 셀카 찍어서 올림", b: "전에 잘 됐던 게시물이랑 비슷하게 올림, 반응 검증된 게 좋음", type: "NS" },
+            { q: "멤버가 무대 끝나고 엉엉 운다. 나는?", a: "일단 안아주고 같이 울 것 같음", b: "'왜 울어, 무슨 일 있었어?' 하고 원인부터 파악함", type: "FT" },
+            { q: "오늘 팬미팅 끝나고 숙소 들어왔다. 나는?", a: "씻고 멤버들이랑 오늘 있었던 얘기 늘어놓음", b: "얼른 내 방 들어가서 혼자 충전함", type: "EI" },
+            { q: "오늘 무대 의상이 나왔는데 내 취향이 아니다. 나는?", a: "그냥 입음, 어차피 무대에서 잘 보이면 된 거지", b: "나만의 포인트 하나 추가해서 내 스타일로 소화해버림", type: "JP" },
+            { q: "오늘 방송 녹화가 예상보다 3시간 길어졌다. 나는?", a: "나머지 스케줄 어떻게 되는 거지... 매니저한테 바로 확인함", b: "뭐 어떻게든 되겠지, 일단 지금 이거나 잘 하자", type: "JP" },
+            { q: "무대에서 가사를 한 소절 날렸다. 나는?", a: "멤버랑 눈 마주치고 그냥 웃으면서 넘김", b: "표정 관리하면서 넘기고 끝나고 나서 혼자 복기함", type: "FT" },
+            { q: "해외 투어 첫 도시 도착! 나는?", a: "공연 전에 근처 뭐 있는지 미리 다 찾아놨음", b: "일단 도착했으니까 나중에 찾아보면 되지", type: "JP" },
+            { q: "연습실에서 내 파트 칭찬받았다. 나는?", a: "기분 좋긴 한데 왜 잘했는지 이유가 더 궁금함", b: "그냥 너무 행복함, 하루 종일 기분 좋음", type: "TF" }, // Q10은 A=T, B=F 구조
+            { q: "데뷔 전날 밤. 나는?", a: "내일 동선이랑 가사 머릿속으로 다시 돌려봄", b: "생각 너무 많아지니까 그냥 유튜브 보다가 잠듦", type: "NS" },
+            { q: "오늘 연습 없는 자유시간. 나는?", a: "멤버들한테 먼저 '우리 뭐 할까~' 하고 카톡 보냄", b: "혼자 카페 가거나 넷플릭스 보면서 조용히 쉼", type: "EI" }
+        ];
+
+        // 결과 매핑 정보
+        const resultsData = {
+            "막내": {
+                description: "풍부한 감성과 통통 튀는 매력으로 온 우주의 사랑을 받는 존재입니다! 지치지 않는 열정과 러블리함으로 팀의 비타민 역할을 자처하며, 언제나 주변 사람들을 행복하게 만드는 독보적인 에너지를 가지고 있습니다.",
+                best: "[선생님 이름]", worst: "[선생님 이름]"
+            },
+            "리더": {
+                description: "트렌디한 비전과 강력한 카리스마로 팀을 이끄는 든든한 등대입니다! 어려운 상황에서도 이성적이고 영리하게 돌파구를 찾아내며, 멤버들의 포텐셜을 최고로 이끌어내 주는 대체 불가능한 주역입니다.",
+                best: "[선생님 이름]", worst: "[선생님 이름]"
+            },
+            "예능멤": {
+                description: "지치지 않는 텐션과 탁월한 공감 능력으로 대중의 마음을 무장해제시키는 분위기 메이커입니다! 센스 있는 말솜씨와 친근함으로 어디서나 스포트라이트를 받으며, 팀의 인지도를 하드캐리하는 매력 덩어리입니다.",
+                best: "[선생님 이름]", worst: "[선생님 이름]"
+            },
+            "메인댄서": {
+                description: "철저한 자기관리와 압도적인 실행력으로 무대를 찢어놓는 확신의 능력자입니다! 현실적이고 똑 부러지는 성격으로 복잡한 동선과 안무도 완벽하게 소화해내며, 팀의 중심을 단단히 잡아주는 프로페셔널의 정석입니다.",
+                best: "[선생님 이름]", worst: "[선생님 이름]"
+            },
+            "메인보컬": {
+                description: "깊은 감수성과 따뜻한 내면으로 듣는 이들의 마음을 울리는 치유형 아티스트입니다! 겉으로는 조용해 보이지만 무대 위에서는 폭발적인 감성을 보여주며, 멤버들의 고민을 가장 잘 들어주는 다정한 소울메이트입니다.",
+                best: "[선생님 이름]", worst: "[선생님 이름]"
+            },
+            "작곡가": {
+                description: "남다른 깊이의 통찰력과 지적인 매력으로 그룹의 독창적인 색깔을 만들어내는 브레인입니다! 독립적이고 분석적인 시선으로 세상을 바라보며, 남들이 생각하지 못한 참신한 콘셉트를 기획해내는 천재적인 재능이 있습니다.",
+                best: "[선생님 이름]", worst: "[선생님 이름]"
+            },
+            "대중픽": {
+                description: "부드럽고 조화로운 성품으로 호불호 없이 모두에게 사랑받는 그룹의 힐링 요정입니다! 주변을 편안하게 만드는 따뜻한 공감 능력과 섬세함으로 멤버들을 묵묵히 챙겨주며, 대중에게 가장 친근하고 안정감을 주는 멤버입니다.",
+                best: "[선生的 이름]", worst: "[선생님 이름]"
+            },
+            "비주얼 센터": {
+                description: "조용하지만 시선을 단숨에 사로잡는 냉미녀/냉미남 스타일의 정석이자 완벽주의자입니다! 흐트러짐 없는 포커페이스와 묵묵한 노력으로 최상의 결과물을 보여주며, 은근한 츤데레 매력으로 팬들을 입덕시키는 중심축입니다.",
+                best: "[선생님 이름]", worst: "[선생님 이름]"
+            }
+        };
+
+        let currentQuestionIndex = 0;
+        let scores = { E: 0, I: 0, N: 0, S: 0, F: 0, T: 0, J: 0, P: 0 };
+
+        function startTest() {
+            currentQuestionIndex = 0;
+            scores = { E: 0, I: 0, N: 0, S: 0, F: 0, T: 0, J: 0, P: 0 };
+            showScreen('question-screen');
+            showQuestion();
+        }
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            document.getElementById(screenId).classList.add('active');
+        }
+
+        function showQuestion() {
+            const qData = questions[currentQuestionIndex];
+            
+            // 진행도 및 프로그레스 바 업데이트
+            document.getElementById('progress-count').innerText = `${currentQuestionIndex + 1} / 12`;
+            const progressPercent = ((currentQuestionIndex + 1) / 12) * 100;
+            document.getElementById('progress-bar-fill').style.width = `${progressPercent}%`;
+            
+            // 질문 및 선택지 텍스트 셋팅
+            document.getElementById('question-text').innerText = qData.q;
+            document.getElementById('option-a').innerText = qData.a;
+            document.getElementById('option-b').innerText = qData.b;
+        }
+
+        function selectOption(choice) {
+            const qData = questions[currentQuestionIndex];
+            
+            // 점수 계산 로직
+            if (qData.type === "EI") {
+                if (choice === 'A') scores.E++; else scores.I++;
+            } else if (qData.type === "NS") {
+                if (choice === 'A') scores.N++; else scores.S++;
+            } else if (qData.type === "FT") {
+                if (choice === 'A') scores.F++; else scores.T++;
+            } else if (qData.type === "TF") { // Q10: A=T, B=F
+                if (choice === 'A') scores.T++; else scores.F++;
+            } else if (qData.type === "JP") {
+                if (choice === 'A') scores.J++; else scores.P++;
+            }
+
+            // 다음 질문 이동 또는 결과 계산
+            currentQuestionIndex++;
+            if (currentQuestionIndex < 12) {
+                showQuestion();
+            } else {
+                calculateResult();
+            }
+        }
+
+        function calculateResult() {
+            // MBTI 4자리 도출
+            const mbtiEorI = scores.E >= scores.I ? 'E' : 'I';
+            const mbtiNorS = scores.N >= scores.S ? 'A' : 'B'; // 편의상 조합 확인용 임시 매핑 (N=A, S=B)
+            const mbtiForT = scores.F >= scores.T ? 'F' : 'T';
+            const mbtiJorP = scores.J >= scores.P ? 'J' : 'P';
+            
+            // 실제 표시용 MBTI 텍스트 (정확한 출력을 위해 다시 정제)
+            const displayNisN = scores.N >= scores.S ? 'N' : 'S';
+            const finalMBTI = mbtiEorI + displayNisN + mbtiForT + mbtiJorP;
+
+            // 포지션 매핑 기준
+            // E + N + F -> 막내
+            // E + N + T -> 리더
+            // E + S + F -> 예능멤
+            // E + S + T -> 메인댄서
+            // I + N + F -> 메인보컬
+            // I + N + T -> 작곡가
+            // I + S + F -> 대중픽
+            // I + S + T -> 비주얼 센터
+            let position = "";
+            if (mbtiEorI === 'E') {
+                if (displayNisN === 'N') {
+                    position = (mbtiForT === 'F') ? "막내" : "리더";
+                } else {
+                    position = (mbtiForT === 'F') ? "예능멤" : "메인댄서";
+                }
+            } else {
+                if (displayNisN === 'N') {
+                    position = (mbtiForT === 'F') ? "메인보컬" : "작곡가";
+                } else {
+                    position = (mbtiForT === 'F') ? "대중픽" : "비주얼 센터";
+                }
+            }
+
+            // 결과 화면 데이터 바인딩
+            const res = resultsData[position];
+            document.getElementById('result-mbti').innerText = finalMBTI;
+            document.getElementById('result-position').innerText = position;
+            document.getElementById('result-description').innerText = res.description;
+            document.getElementById('best-teacher').innerText = res.best;
+            document.getElementById('worst-teacher').innerText = res.worst;
+
+            showScreen('result-screen');
+        }
+
+        function restartTest() {
+            showScreen('start-screen');
+        }
+    </script>
+</body>
+</html>
